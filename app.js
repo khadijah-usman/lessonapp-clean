@@ -66,7 +66,59 @@ function renderLessons() {
 }
 document.addEventListener("DOMContentLoaded", () => {
     console.log("Lesson Booking App loaded!");
+    // Listen for typing in the search bar
+document.getElementById("search-input").addEventListener("input", (event) => {
+    const searchText = event.target.value;
+
+    // If search box is empty → show all lessons again
+    if (searchText.trim() === "") {
+        renderLessons();
+    } else {
+        filterLessons(searchText);
+    }
+});
 
     // Call the function to show lessons on page load
     renderLessons();
 });
+// --------------------------------------------------------
+// FUNCTION: filterLessons()
+// --------------------------------------------------------
+// This function filters the lessons based on the text
+// the user types in the search bar.
+// 
+// It checks if the search term appears in either:
+//   - subject
+//   - location
+// 
+// Then it shows ONLY the matching lessons.
+// --------------------------------------------------------
+function filterLessons(searchTerm) {
+
+    // Convert the search text to lowercase to make it case-insensitive
+    const term = searchTerm.toLowerCase();
+
+    // Filter lessons that match the subject or location
+    const filtered = lessons.filter(lesson => 
+        lesson.subject.toLowerCase().includes(term) ||
+        lesson.location.toLowerCase().includes(term)
+    );
+
+    // Re-render ONLY the filtered lessons
+    const container = document.getElementById("lesson-container");
+    container.innerHTML = ""; // Clear old content
+
+    filtered.forEach(lesson => {
+        const card = document.createElement("div");
+        card.className = "lesson-card";
+
+        card.innerHTML = `
+            <h2>${lesson.subject}</h2>
+            <p><strong>Location:</strong> ${lesson.location}</p>
+            <p><strong>Price:</strong> £${lesson.price}</p>
+            <p><strong>Spaces:</strong> ${lesson.spaces}</p>
+        `;
+
+        container.appendChild(card);
+    });
+}

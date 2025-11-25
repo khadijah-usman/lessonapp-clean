@@ -2,19 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
+
+    <!-- Ensures the website scales properly on phones/tablets -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>Lesson Booking App</title>
+
+    <!-- Link to our CSS file to style the page -->
     <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
+
+    <!-- Header section shown at the top of the page -->
     <header>
         <h1>Lesson Booking App</h1>
     </header>
+<!-- Search Bar Section -->
+<section id="search-section">
+    <!-- The search input allows users to filter lessons -->
+    <input 
+        type="text" 
+        id="search-input" 
+        placeholder="Search for a subject or location..."
+    >
+</section>
+    <!-- This is where all the lesson cards will be displayed -->
+    <main id="lesson-container"></main>
 
-    <main id="lesson-container">
-        <!-- Lessons will be displayed here -->
-    </main>
-
+    <!-- Link to our JavaScript file which controls the logic -->
     <script src="app.js"></script>
+
 </body>
 </html>
