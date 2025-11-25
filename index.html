@@ -45,3 +45,88 @@
          - Sorting dropdowns
          - Cart button + item count badge
     ======================================================= -->
+        <!-- =======================================================
+         HEADER BAR (Navigation + Controls)
+         -------------------------------------------------------
+         This section contains:
+         - The clickable app logo/title (returns user to lessons view)
+         - The search bar (filters lessons dynamically)
+         - Sorting dropdown menus (sort by subject/location/price/spaces)
+         - The cart button showing number of items in the cart
+    ======================================================= -->
+    <header class="header">
+
+        <!-- 
+            App Logo / Title
+            - Uses @click="goHome" to reset the view back to lessons
+            - Cursor pointer gives a clickable button feel
+        -->
+        <h1 class="logo" @click="goHome" style="cursor:pointer;">
+            <i class="fa-solid fa-graduation-cap"></i> LessonHub
+        </h1>
+
+        <!-- Right-side control panel (search + sort + cart) -->
+        <div class="controls">
+
+            <!-- 
+                SEARCH BAR
+                - Uses v-model="searchTerm"
+                - Instantly filters lessons based on user input
+                - Filters by subject, location, price or spaces
+            -->
+            <input
+                v-model="searchTerm"
+                class="search"
+                placeholder="Search by subject, location, price, or spaces..."
+            />
+
+            <!-- 
+                SORTING CONTROLS
+                - sortBy (which attribute)
+                - sortOrder (ascending/descending)
+                Both values are reactive through v-model
+            -->
+            <div class="sort-group">
+
+                <!-- Sort by dropdown -->
+                <div class="custom-select">
+                    <select v-model="sortBy">
+                        <option value="subject">Subject</option>
+                        <option value="location">Location</option>
+                        <option value="price">Price</option>
+                        <option value="spaces">Spaces</option>
+                    </select>
+                    <i class="fa-solid fa-angle-down"></i>
+                </div>
+
+                <!-- Sort order dropdown -->
+                <div class="custom-select">
+                    <select v-model="sortOrder">
+                        <option value="asc">Ascending</option>
+                        <option value="desc">Descending</option>
+                    </select>
+                    <i class="fa-solid fa-angle-down"></i>
+                </div>
+            </div>
+
+            <!-- 
+                CART BUTTON
+                - Toggles between lessons page and cart page
+                - Disabled when cart is empty (cartItemCount === 0)
+                - Shows badge with item count
+            -->
+            <button
+                class="cart-btn"
+                @click="showCart = !showCart"
+                :disabled="cartItemCount === 0"
+            >
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span>Cart</span>
+
+                <!-- Cart badge shown only when cart has items -->
+                <span v-if="cartItemCount" class="cart-badge">
+                    {{ cartItemCount }}
+                </span>
+            </button>
+        </div>
+    </header>
