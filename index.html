@@ -4,75 +4,64 @@
     <meta charset="UTF-8" />
 
     <!-- 
-        ============================
-        CST3144 Full-Stack Assignment
-        FRONTEND: Vue.js (CDN Version)
-        This file controls:
-        - Page layout (header, lessons list, cart)
-        - Search bar and sorting UI
-        - Toggle between lessons page & cart page
-        - Vue bindings using v-model, v-if, v-for, and events
-        ============================
+        CST3144 FULL-STACK COURSEWORK — FRONTEND (Vue.js SPA)
+
+        This single-page application (SPA) implements:
+        - Dynamic lesson list (with subjects, locations, price, spaces, icons/images)
+        - Search and sorting (by subject, location, price, and spaces)
+        - Add-to-cart logic with spaces decrement
+        - Cart view with quantity updates and line totals
+        - Checkout form with client-side validation (Name + Phone)
+        
+        All interactivity is controlled via Vue.js in app.js.
     -->
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CST3144 Lessons App</title>
 
-    <!-- Styles for colours, layout and animations -->
+    <!-- Custom styling -->
     <link rel="stylesheet" href="style.css" />
 
-    <!-- Icons (shopping cart, location marker, etc.) -->
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- Font Awesome icon library for UI icons (cart, location, etc.) -->
+    <link 
+        rel="stylesheet" 
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" 
+    />
 
-    <!-- Vue 3 Framework (loaded via CDN) -->
+    <!-- Vue 3 (CDN) — used to build the SPA and manage all reactive data/state -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
 
 <body>
-
 <!-- 
-    The entire Vue application is mounted on #app.
-    Everything inside is reactive and controlled by app.js
+    All Vue behaviour is mounted on this root element (#app).
+    Vue controls:
+    - lesson data and filtering
+    - sorting
+    - cart contents
+    - form validation and checkout state
 -->
 <div id="app">
 
     <!-- =======================================================
-         HEADER BAR (Top of the Page)
-         Contains:
-         - App title (click → return to lessons page)
-         - Search bar
-         - Sorting dropdowns
-         - Cart button + item count badge
-    ======================================================= -->
-        <!-- =======================================================
-         HEADER BAR (Navigation + Controls)
-         -------------------------------------------------------
-         This section contains:
-         - The clickable app logo/title (returns user to lessons view)
-         - The search bar (filters lessons dynamically)
-         - Sorting dropdown menus (sort by subject/location/price/spaces)
-         - The cart button showing number of items in the cart
-    ======================================================= -->
+         HEADER: Logo, search, sorting, and cart button
+         ======================================================= -->
     <header class="header">
 
         <!-- 
-            App Logo / Title
-            - Uses @click="goHome" to reset the view back to lessons
-            - Cursor pointer gives a clickable button feel
+            Logo acts like a "Home" button.
+            Clicking it calls goHome(), which switches back to the lesson list view.
         -->
-        <h1 class="logo" @click="goHome" style="cursor:pointer;">
+        <h1 class="logo" @click="goHome" style="cursor: pointer;">
             <i class="fa-solid fa-graduation-cap"></i> LessonHub
         </h1>
 
-        <!-- Right-side control panel (search + sort + cart) -->
         <div class="controls">
-
             <!-- 
-                SEARCH BAR
-                - Uses v-model="searchTerm"
-                - Instantly filters lessons based on user input
-                - Filters by subject, location, price or spaces
+                Search bar:
+                - Bound to searchTerm via v-model
+                - Triggers real-time filtering in computed property filteredLessons
+                - Searches across subject, location, price, and spaces
             -->
             <input
                 v-model="searchTerm"
@@ -81,14 +70,13 @@
             />
 
             <!-- 
-                SORTING CONTROLS
-                - sortBy (which attribute)
-                - sortOrder (ascending/descending)
-                Both values are reactive through v-model
+                Sorting controls:
+                - sortBy: which field (subject, location, price, spaces)
+                - sortOrder: ascending or descending
+                - Both are used in sortedAndFilteredLessons (computed in app.js)
             -->
             <div class="sort-group">
-
-                <!-- Sort by dropdown -->
+                <!-- Sort by attribute -->
                 <div class="custom-select">
                     <select v-model="sortBy">
                         <option value="subject">Subject</option>
@@ -99,7 +87,7 @@
                     <i class="fa-solid fa-angle-down"></i>
                 </div>
 
-                <!-- Sort order dropdown -->
+                <!-- Sort order -->
                 <div class="custom-select">
                     <select v-model="sortOrder">
                         <option value="asc">Ascending</option>
@@ -110,10 +98,10 @@
             </div>
 
             <!-- 
-                CART BUTTON
-                - Toggles between lessons page and cart page
-                - Disabled when cart is empty (cartItemCount === 0)
-                - Shows badge with item count
+                Cart button:
+                - Toggles between lesson list and cart view (showCart boolean)
+                - Disabled when cartItemCount === 0
+                - Badge shows the current number of items in the cart
             -->
             <button
                 class="cart-btn"
@@ -123,87 +111,72 @@
                 <i class="fa-solid fa-cart-shopping"></i>
                 <span>Cart</span>
 
-                <!-- Cart badge shown only when cart has items -->
+                <!-- Only show badge if at least one item in the cart -->
                 <span v-if="cartItemCount" class="cart-badge">
                     {{ cartItemCount }}
                 </span>
             </button>
         </div>
-            <!-- =======================================================
-         MAIN CONTENT AREA
-         Uses a Vue <transition> to animate switching between:
-         - Lesson list view
-         - Cart & checkout view
-       ======================================================= -->
+    </header>
+
+    <!-- =======================================================
+         MAIN CONTENT:
+         - Lesson list view OR Cart view (toggled by showCart)
+         - <transition> gives a fade animation when switching
+         ======================================================= -->
     <main>
-        <!-- 
-            The <transition> component adds a fade animation whenever
-            we switch between the lessons view and the cart view.
-            mode="out-in" ensures one view fades out before the other fades in.
-        -->
         <transition name="fade" mode="out-in">
 
-            <!-- ===================================================
-                 LESSON LIST VIEW
-                 Shown when:
-                 - showCart == false
-                 Uses:
-                 - sortedAndFilteredLessons (computed in Vue)
-                 - v-for to render each lesson card
-               =================================================== -->
+            <!-- ==================== LESSON LIST VIEW ==================== -->
             <section v-if="!showCart" key="lessons" class="lesson-section">
-                <h2>Available Lessons</h2>
 
+                <!-- 
+                    Lessons view:
+                    - Shows all lessons after filtering and sorting
+                    - Demonstrates use of v-for, data binding, and conditional buttons
+                -->
+                <h2>Available Lessons</h2>
                 <p class="page-subtitle">
                     Browse and book lessons across Hendon, Colindale, Brent Cross and more.
                 </p>
 
-                <!-- 
-                    Shows how many lessons match the current search and sort.
-                    sortedAndFilteredLessons is a computed array in app.js.
-                -->
+                <!-- Count of lessons after applying search + sort -->
                 <p class="lesson-count">
                     {{ sortedAndFilteredLessons.length }} lesson(s) found
                 </p>
 
-                <!-- 
-                    If there are no results AND the user has typed a search term,
-                    we show a helpful "no lessons found" message instead of empty grid.
-                -->
+                <!-- If user searches and there are no results, show friendly message -->
                 <p
                     v-if="!sortedAndFilteredLessons.length && searchTerm"
                     class="no-results"
                 >
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    No lessons found for "{{ searchTerm }}". Try another subject or location.
+                    No lessons found for "{{ searchTerm }}".
                 </p>
 
-                <!-- 
-                    If there ARE results, we show them in a responsive grid.
-                    v-else is paired with the v-if above.
-                -->
+                <!-- Display lesson cards when there are results -->
                 <div v-else class="lesson-grid">
 
                     <!-- 
-                        v-for loops over each lesson in sortedAndFilteredLessons.
-                        :key="lesson.id" helps Vue track each card efficiently.
+                        v-for loop:
+                        - Renders one card per lesson
+                        - Uses :key for performance and unique identification
                     -->
                     <div
                         class="lesson-card"
                         v-for="lesson in sortedAndFilteredLessons"
                         :key="lesson.id"
                     >
-                        <!-- Lesson image (from local /images or external URL) -->
+                        <!-- Lesson image from lesson.image -->
                         <img
                             :src="lesson.image"
                             :alt="lesson.subject + ' lesson icon'"
                             class="lesson-img"
                         />
 
-                        <!-- Main lesson details: subject, location, price, spaces -->
+                        <!-- Basic lesson details -->
                         <div class="lesson-info">
                             <h3>
-                                <!-- Icon class is dynamic: e.g. fa-calculator, fa-book -->
                                 <i :class="lesson.icon"></i>
                                 {{ lesson.subject }}
                             </h3>
@@ -220,8 +193,9 @@
                                 Spaces: {{ lesson.spaces }}
 
                                 <!-- 
-                                    If there are only 1 or 2 spaces left,
-                                    show a small "Almost full" badge for urgency.
+                                    "Almost full" badge:
+                                    - Appears when spaces are between 1 and 2
+                                    - Encourages the user to book soon
                                 -->
                                 <span
                                     v-if="lesson.spaces > 0 && lesson.spaces <= 2"
@@ -233,10 +207,10 @@
                         </div>
 
                         <!-- 
-                            ADD TO CART BUTTON
-                            - Calls addToCart(lesson) when clicked
-                            - Disabled when spaces === 0 (lesson is full)
-                            - Button text changes to 'Full' when no spaces left
+                            Add-to-cart button:
+                            - Calls addToCart(lesson)
+                            - Disabled when there are no spaces left
+                            - Button text changes to 'Full' when lesson.spaces === 0
                         -->
                         <button
                             @click="addToCart(lesson)"
@@ -250,8 +224,10 @@
                 </div>
             </section>
 
-            <!-- Cart Section (will be fully commented in Step 4) -->
+            <!-- ==================== CART & CHECKOUT VIEW ==================== -->
             <section v-else key="cart" class="cart-section">
+
+                <!-- Cart header with navigation back to lesson list -->
                 <div class="cart-header">
                     <button class="back-btn" @click="showCart = false">
                         <i class="fa-solid fa-arrow-left"></i> Back to lessons
@@ -259,15 +235,22 @@
                     <h2>Your Cart</h2>
                 </div>
 
-                <!-- Empty cart state -->
+                <!-- Message for empty cart -->
                 <p v-if="!cart.length" class="cart-empty">
-                    Your cart is empty. Go back to the lessons page and add some lessons 🌱
+                    Your cart is empty. Add some lessons to continue 🌱
                 </p>
 
-                <!-- Cart with items -->
+                <!-- Cart contents and checkout form -->
                 <div v-else>
+                    <!-- 
+                        Cart list:
+                        - Displays each selected lesson
+                        - Shows price, quantity, and line total (price * quantity)
+                        - Allows increasing/decreasing quantity and removing items
+                    -->
                     <ul class="cart-list">
-                        <!-- Header row -->
+
+                        <!-- Header row for cart "table" -->
                         <li class="cart-header-row">
                             <span>Lesson</span>
                             <span>Price</span>
@@ -276,12 +259,13 @@
                             <span></span>
                         </li>
 
-                        <!-- Cart rows -->
+                        <!-- One cart row per item -->
                         <li
                             v-for="(item, index) in cart"
                             :key="item.id"
                             class="cart-item"
                         >
+                            <!-- Lesson info in the cart (thumbnail + text) -->
                             <div class="cart-item-info">
                                 <img
                                     :src="item.image"
@@ -297,32 +281,46 @@
                                 </div>
                             </div>
 
+                            <!-- Price per lesson -->
                             <span class="cart-price">
                                 £{{ item.price }}
                             </span>
 
+                            <!-- 
+                                Quantity controls:
+                                - decreaseQuantity(index) reduces quantity
+                                - increaseQuantity(index) increases quantity (if spaces available)
+                                - Quantity is stored per-item in the cart array
+                            -->
                             <div class="cart-qty">
                                 <button
                                     class="qty-btn"
+                                    type="button"
                                     @click="decreaseQuantity(index)"
                                 >
                                     -
                                 </button>
-                                <span class="qty-value">{{ item.quantity }}</span>
+                                <span class="qty-value">
+                                    {{ item.quantity }}
+                                </span>
                                 <button
                                     class="qty-btn"
+                                    type="button"
                                     @click="increaseQuantity(index)"
                                 >
                                     +
                                 </button>
                             </div>
 
+                            <!-- Total cost for this line item -->
                             <span class="cart-line-total">
                                 £{{ (item.price * item.quantity).toFixed(2) }}
                             </span>
 
+                            <!-- Remove item from cart entirely -->
                             <button
                                 class="remove-btn"
+                                type="button"
                                 @click="removeFromCart(index)"
                             >
                                 <i class="fa-solid fa-trash"></i>
@@ -330,6 +328,7 @@
                         </li>
                     </ul>
 
+                    <!-- Cart total section -->
                     <div class="cart-total-box">
                         <h3>
                             {{ cartItemCount }} item(s) |
@@ -337,9 +336,18 @@
                         </h3>
                     </div>
 
+                    <!-- ================= CHECKOUT FORM ================= -->
                     <div class="checkout-box">
                         <h3>Checkout</h3>
+
+                        <!-- 
+                            Checkout form:
+                            - Uses @submit.prevent="checkout" to handle submission in Vue
+                            - Validates Name and Phone in app.js (using regex)
+                            - Only allows checkout when form is valid and cart is not empty
+                        -->
                         <form @submit.prevent="checkout">
+                            <!-- Name field (letters and spaces only) -->
                             <label>
                                 Name
                                 <input
@@ -349,8 +357,11 @@
                                     @input="nameError = ''; orderConfirmed = false"
                                 />
                             </label>
-                            <p v-if="nameError" class="error">{{ nameError }}</p>
+                            <p v-if="nameError" class="error">
+                                {{ nameError }}
+                            </p>
 
+                            <!-- Phone field (digits only, with length check in app.js) -->
                             <label>
                                 Phone
                                 <input
@@ -360,18 +371,27 @@
                                     @input="phoneError = ''; orderConfirmed = false"
                                 />
                             </label>
-                            <p v-if="phoneError" class="error">{{ phoneError }}</p>
+                            <p v-if="phoneError" class="error">
+                                {{ phoneError }}
+                            </p>
 
-                            <!-- ✅ Button now only disabled when cart is empty -->
+                            <!-- 
+                                Submit order button:
+                                - Always visible
+                                - Disabled if cart is empty OR form is invalid
+                                  (isFormValid is a computed property in app.js)
+                            -->
                             <button
-                                :disabled="!cart.length"
                                 class="checkout-btn"
+                                type="submit"
+                                :disabled="!cart.length || !isFormValid"
                             >
                                 <i class="fa-solid fa-paper-plane"></i>
                                 Submit Order
                             </button>
                         </form>
 
+                        <!-- Success message shown after a valid order -->
                         <p v-if="orderConfirmed" class="success">
                             Order Confirmed Successfully!
                         </p>
@@ -380,4 +400,13 @@
             </section>
         </transition>
     </main>
-    </header>
+</div>
+
+<!-- 
+    Vue Logic (sorting, filtering, cart, and checkout) 
+    - All application logic lives in app.js
+    - Later, this file will be extended to call the Express/MongoDB backend API
+-->
+<script src="app.js"></script>
+</body>
+</html>
