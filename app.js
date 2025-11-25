@@ -29,3 +29,44 @@ const lessons = [
 
 // Log to confirm data loaded correctly
 console.log("Lessons data loaded:", lessons);
+// --------------------------------------------------------
+// FUNCTION: renderLessons()
+// --------------------------------------------------------
+// This function displays all lessons on the page.
+// It loops through the lessons array and creates HTML
+// for each lesson card dynamically using JavaScript.
+//
+// This is how the front-end "builds" the UI.
+// --------------------------------------------------------
+function renderLessons() {
+    // Select the container in index.html where lessons will appear
+    const container = document.getElementById("lesson-container");
+
+    // Clear anything that was previously inside
+    container.innerHTML = "";
+
+    // Loop through each lesson in the lessons array
+    lessons.forEach(lesson => {
+
+        // Create a new card for each lesson
+        const card = document.createElement("div");
+        card.className = "lesson-card"; // Style comes from style.css
+
+        // Add the lesson information inside the card
+        card.innerHTML = `
+            <h2>${lesson.subject}</h2>
+            <p><strong>Location:</strong> ${lesson.location}</p>
+            <p><strong>Price:</strong> £${lesson.price}</p>
+            <p><strong>Spaces:</strong> ${lesson.spaces}</p>
+        `;
+
+        // Add the card to the page
+        container.appendChild(card);
+    });
+}
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("Lesson Booking App loaded!");
+
+    // Call the function to show lessons on page load
+    renderLessons();
+});
