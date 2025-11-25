@@ -1,0 +1,40 @@
+/* 
+   Basic page styling: 
+   - Remove default margins
+   - Set background colour
+   - Choose a clean font for readability
+*/
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+}
+
+/*
+   Header styling:
+   - Green background
+   - White text
+   - Centered title
+*/
+header {
+    background: #4CAF50;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    font-size: 1.4rem;
+}
+
+/*
+   Style for each lesson card:
+   - White background
+   - Rounded corners
+   - Light shadow for depth
+   - Margin and padding for spacing
+*/
+.lesson-card {
+    background: white;
+    padding: 20px;
+    margin: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
