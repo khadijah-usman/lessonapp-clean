@@ -3,35 +3,45 @@
 <head>
     <meta charset="UTF-8" />
 
-    <!-- Ensures the website scales properly on phones/tablets -->
+    <!-- 
+        ============================
+        CST3144 Full-Stack Assignment
+        FRONTEND: Vue.js (CDN Version)
+        This file controls:
+        - Page layout (header, lessons list, cart)
+        - Search bar and sorting UI
+        - Toggle between lessons page & cart page
+        - Vue bindings using v-model, v-if, v-for, and events
+        ============================
+    -->
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CST3144 Lessons App</title>
 
-    <title>Lesson Booking App</title>
-
-    <!-- Link to our CSS file to style the page -->
+    <!-- Styles for colours, layout and animations -->
     <link rel="stylesheet" href="style.css" />
+
+    <!-- Icons (shopping cart, location marker, etc.) -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Vue 3 Framework (loaded via CDN) -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
 
 <body>
 
-    <!-- Header section shown at the top of the page -->
-    <header>
-        <h1>Lesson Booking App</h1>
-    </header>
-<!-- Search Bar Section -->
-<section id="search-section">
-    <!-- The search input allows users to filter lessons -->
-    <input 
-        type="text" 
-        id="search-input" 
-        placeholder="Search for a subject or location..."
-    >
-</section>
-    <!-- This is where all the lesson cards will be displayed -->
-    <main id="lesson-container"></main>
+<!-- 
+    The entire Vue application is mounted on #app.
+    Everything inside is reactive and controlled by app.js
+-->
+<div id="app">
 
-    <!-- Link to our JavaScript file which controls the logic -->
-    <script src="app.js"></script>
-
-</body>
-</html>
+    <!-- =======================================================
+         HEADER BAR (Top of the Page)
+         Contains:
+         - App title (click → return to lessons page)
+         - Search bar
+         - Sorting dropdowns
+         - Cart button + item count badge
+    ======================================================= -->
